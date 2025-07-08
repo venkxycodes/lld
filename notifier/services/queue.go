@@ -28,5 +28,7 @@ func (q queuer) DequeueJob(queue *domain.Queue) (*domain.Notification, error) {
 	if len(queue.Values) == 0 {
 		return nil, fmt.Errorf(`queue "%s" is empty`, queue.Name)
 	}
-	return &(queue.Values[0]), nil
+	notification := &queue.Values[0]
+	queue.Values = queue.Values[1:]
+	return notification, nil
 }
