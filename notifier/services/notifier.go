@@ -1,24 +1,39 @@
 package services
 
-import "notifier/domain"
+import (
+	"errors"
+	"notifier/domain"
+)
 
 type notifier struct {
-	queue Queuer
+	smsQueue   *domain.Queue
+	emailQueue *domain.Queue
+	queuer     Queuer
 }
 
 type Notifier interface {
-	SendSms(queue *domain.Queue, notification *domain.Notification) error
-	SendEmail(queue *domain.Queue, notification *domain.Notification) error
+	SendSms(notification *domain.Notification) error
+	SendEmail(notification *domain.Notification) error
 }
 
-func NewNotifier(queue Queuer) Notifier {
-	return &notifier{
-		queue: queue,
+func NewNotifier(queuer Queuer, queues map[domain.QueueType]*domain.Queue) (Notifier, error) {
+	var smsQueue *domain.Queue
+	var emailQueue *domain.Queue
+	if smsQueue, ok = queues[domain.SMS]; !ok {
+		return nil, errors.New("no sms queue")
 	}
+	if emailQueue, ok = queues[domain.Email]; !ok {
+		return nil, errors.New("no email queue")
+	}
+	return &notifier{
+		queuer:     queuer,
+		smsQueue:   smsQueue,
+		emailQueue: emailQueue,
+	}, nil
 }
 
-func (n notifier) SendSms(queue *domain.Queue, notification *domain.Notification) error {
-	err := n.queue.EnqueueJob(queue, notification)
+func (n notifier) SendSms(notification *domain.Notification) error {
+	err := n.queuer.EnqueueJob(n.smsQueue, notification)
 	if err != nil {
 		return err
 	}
@@ -26,8 +41,8 @@ func (n notifier) SendSms(queue *domain.Queue, notification *domain.Notification
 	return nil
 }
 
-func (n notifier) SendEmail(queue *domain.Queue, notification *domain.Notification) error {
-	err := n.queue.EnqueueJob(queue, notification)
+func (n notifier) SendEmail(notification *domain.Notification) error {
+	err := n.queuer.EnqueueJob(n.emailQueue, notification)
 	if err != nil {
 		return err
 	}

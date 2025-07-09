@@ -26,7 +26,7 @@ func (q queuer) EnqueueJob(queue *domain.Queue, notification *domain.Notificatio
 
 func (q queuer) DequeueJob(queue *domain.Queue) (*domain.Notification, error) {
 	if len(queue.Values) == 0 {
-		return nil, fmt.Errorf(`queue "%s" is empty`, queue.Name)
+		return nil, fmt.Errorf(`queuer "%s" is empty`, queue.Name)
 	}
 	notification := &queue.Values[0]
 	queue.Values = queue.Values[1:]
