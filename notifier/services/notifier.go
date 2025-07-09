@@ -17,12 +17,12 @@ type Notifier interface {
 }
 
 func NewNotifier(queuer Queuer, queues map[domain.QueueType]*domain.Queue) (Notifier, error) {
-	var smsQueue *domain.Queue
-	var emailQueue *domain.Queue
+	var smsQueue, emailQueue *domain.Queue
+	var ok, ok1 bool
 	if smsQueue, ok = queues[domain.SMS]; !ok {
 		return nil, errors.New("no sms queue")
 	}
-	if emailQueue, ok = queues[domain.Email]; !ok {
+	if emailQueue, ok1 = queues[domain.Email]; !ok1 {
 		return nil, errors.New("no email queue")
 	}
 	return &notifier{
