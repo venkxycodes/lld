@@ -6,7 +6,7 @@ A read/write mutex protects concurrent access. Expiration and eviction can be ad
 Run the example from the repository root:
 
 ```sh
-cd "kv cache"
+cd kv-cache
 go run .
 ```
 
